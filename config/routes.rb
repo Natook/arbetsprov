@@ -1,4 +1,6 @@
 Arbetsprov::Application.routes.draw do
+  get 'program_info/home'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
