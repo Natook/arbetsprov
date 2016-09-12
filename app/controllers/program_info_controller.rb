@@ -1,0 +1,2 @@
+class ProgramInfoController < ApplicationController
+end
