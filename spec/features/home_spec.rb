@@ -3,7 +3,7 @@ require 'rails_helper'
 describe 'home page' do
   it 'welcomes the user' do
     visit '/'
-    expect(page).to have_content('Let\'s dance ownzors')
+    expect(page).to have_content('Welcome')
   end
 end
 
