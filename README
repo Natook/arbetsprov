@@ -4,7 +4,7 @@ Uses ruby 1.9.3, rails 3.0.20
 
 1. Clone repo
 2. Use 'bundle install' to install necessary gems
-3. start application with 'rails -s'
+3. start application with 'rails s'
 4. open browser at 'localhost:3000/programs'
 
 Run tests with 'rake spec'
