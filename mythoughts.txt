@@ -1,0 +1,147 @@
+Jag har försökt skriva ner hur jag har tänkt medan jag löst uppgiften. Utan att förstå att det här var första gången jag läst från ett rest api eller behandlat json kan min insats tyckas väldigt liten på den här tiden. Jag hoppas att mina anteckningar kan ge en känsla för hur jag tänker iaf.  
+
+
+Jag öppnar instruktionerna och klickar på länkarna i takt med att jag läser för att bilda mig en uppfattning om uppgiften. 
+
+Länken till idol-deltagarna är trasig. Surfar runt en halv minut för att se om jag hittar det själv, men inget napp.
+
+Det står att jag ska kunna se information om deltagare via API:t. Jag öppnar länken och möts av json som är svårläst i browsern. 
+
+Jag tänker att det måste finnas något sätt att göra det mer överblickbart. Jag börjar skriva “json” i google och ser alternativet “json viewer”. Provar första träffen, klistrar in svaret från API:t och får något mycket mer lättläst. Nice!
+
+
+
+MEN jag hittar fortfarande inget om deltagare. Kanske inte så konstigt om /idol/deltagare saknas. 
+
+Vad händer om jag provar med Let’s dance då? Den sidan var ju iaf uppe. Jag ändrar url-en till http://api.tv4play.se/site/programs/lets-dance 
+
+Bingo! Här finns “participant_groups” med alla deltagare. 
+
+Instruktionerna går vidare med video. 
+Jag tittar på json igen och får kul igenkänningar. 
+Jag känner igen Akamai för CDN och videoplaza för reklamen gissar jag? 
+Intressant info om plattformar som videon får spelas upp på, hur länge den är tillgänglig osv… 
+
+Jag provar att stoppa in första id:t i http://www.tv4play.se/program/idol?video_id=3230051 och ser att jag får fram video-sidan. Toppen!
+
+Alright, nog med rekognosering.
+
+Dags att dra upp en terminal! Eller två
+
+Första steget är ett nytt git-repo. 
+Men innan dess “rails new”
+
+Sådär, nytt git repo och rails app skapad. 
+Men innan jag kommittar alla filer ringer en klocka i bakhuvudet som säger mig att jag inte borde kommitta alla filer. Google!
+Ja, men titta, rails genererar en .gitignore åt mig säger google. 
+Kikar på den av ren nyfikenhet, vad är det som anses vara bra att inte kommitta liksom. Lite klokare kör jag vidare. 
+
+Kommittar allt lokalt och tänker att det är nog lika bra att pusha remote på en gång. 
+Git status - allt är lugnt.
+
+Rails s + surfar in på localhost:3000 för att se att allt lirar. 
+
+Ok, det första jag vill ha är ett integrationstest så att jag kan få fram någon typ av walking skeleton. Det har jag aldrig gjort så det blir till att läsa på lite. 
+
+Jag gör en branch eftersom att jag lätt vill kunna labba lite men ändå lätt vill kunna komma tillbaka till utgångsläget.
+
+Hittar att jag kan använda rpec+capybara för att skriva acceptanstester. Då kan jag skriva en check som ser om appen i överhuvudtaget är igång. Det ger visserligen inte jättemycket info om hur bra den mår eller vad man kan göra med den, men det ger mig iaf tryggheten att den startar. 
+
+Min första check är alltså väldigt enkel:
+
+describe 'home page' do
+  it 'welcomes the user' do
+    visit '/'
+    expect(page).to have_content('Welcome')
+  end
+
+Rake spec - grönt! 
+Men… grönt på riktigt? Ändrar min expect till något som inte finns “Welcomyes”. Rött! 
+
+Nice, nu vet jag att jag kan lita på det på riktigt!
+Ok, så… vad vill vi göra egentligen då?
+
+En startsida med programinfo är första uppgiften. 
+Det är en statisk sida som jag vill börja med alltså. 
+Då ändrar jag testet till att förvänta sig min egna test “Let’s dance ownzors”
+
+Här känner jag att det är dags att merga den här branchen i master. Jag har uppnått det jag ville, att få testramverket att lira. Känns lite fnuttigt kanske men nu döpte jag den till “tests” så det känns knasigt att fortsätta där. På samma sätt gör jag en ny branch nu för min första statiska sida. 
+
+Jag generar en controller “program_info”
+Jag skapar en route for program_info/home
+
+Men… jag har ju fått ett rspec test för controllern automagiskt. 
+Nu inser jag att jag inte ville ändra mitt första test iaf. Jag tror att jag satsar på att ingången till appen blir /program_info istället för i rooten.
+Testet med Welcome kan få vara kvar. Jag ändrar tillbaka. 
+Testkör. 
+
+Jag har en pending på mitt controller test och en success på welcome. Appen lirar fortfarande trots att jag börjat labba med den!
+
+Jag skriver ett nytt feature test som förväntar sig att det händer något när man surfar till /program_info. Det blir rött.
+
+Uppdaterar route, controller och skapar en vy så att testet går igenom. 
+
+Inser att jag inte följt konventionerna och döpt controllern till “program_info”. 
+Ändrar till “programs”. 
+Kör mitt test och uppdaterar alla platser som gör att testet smäller. 
+Testet grönt. 
+
+Jag känner att nu vill jag pusha något remote i fall att jag skulle jobba på annan dator eller så. 
+Mergar in det jag har i master och pushar. 
+
+Dags att lära sig hur man kommunicerar med ett rest api via ruby. 
+Jag läser på lite och ser att det finns en drös med gems att välja mellan. 
+
+Däremot ska net/http funka out of the box. 
+Jag hinner inte börja researcha en massa ramverk så jag kör på första bästa, net/http. 
+
+Leker lite med net/http i irb för att få en känsla för hur det funkar. 
+Jag lär mig att 
+   uri = URI.parse("http://api.tv4play.se/site/programs/lets-dance")
+    response = Net::HTTP.get_response uri
+     p response
+
+Ger en statuskod “HTTPOK 200”
+Jaha. 
+Men jag vill ju ha ut json datat …
+
+Lär mig att det finns response.body och då får jag datat. Hela DATAT…
+Kan jag få ut något mer meningfullt då? T.ex bara titlarna på programmen. Eller brukar man hämta allt data och sen filtrera i det?
+
+Hursom vill jag ha json. 
+Jag hittar JSON.parse(request)
+Det ser bättre ut. 
+
+Nu dyker en annan tanke upp. Felhantering? Hur gör man det på ett snyggt sätt? 
+Jag ser att jag kan få en annan kod än 200 tillbaka och även om jag får 200 skulle svaret kunna vara tomt. 
+
+Jag får reda på ur jag kan få ut enskilt data ur min response genom t.ex response[‘name’]
+Det här är första gången som jag ska programmatiskt parsa json och inte bara läsa det manuellt så jag behöver gräva vidare i hur jag ska hitta något som ligger längre in i hierarkin så att säga. 
+
+Jag hittar att det är en hash jag har fått och hur man läser ur den. Det kräver lite testande för att förstå exakt hur man ska gå till väga. Speciellt för att faktiskt visa upp resultatet i vyn. 
+
+Tills slut lyckas jag!!! Lycka!
+
+Wow, jag har passerat 2 timmar för länge sen eftersom att jag behövt googla en hel del i varje steg och jag får ta och ge mig här. Jag finlirar lite och ser till att testerna kan köra fortfarande. 
+Inser att min tanke var att jag skulle lista programmen men när jag satt och testkörde så blev det listan av deltagare jag tog fram istället. Med mer tid hade jag förstås rättat till. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+ 
+
+ 
+
