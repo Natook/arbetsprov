@@ -6,6 +6,12 @@
 <body>
 
 Hello
+<% @programs.each do |program| %>
+	<ul>
+		<li><%= program['description'] %></li> 
+  </ul>
+<% end %>
+
 
 </body>
 </html>
