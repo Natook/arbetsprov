@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe 'program info page' do
+describe 'program page' do
   it 'has a title' do
-    visit '/program_info/home'
+    visit '/programs/home'
     expect(page).to have_content('Hello')
   end
 end
